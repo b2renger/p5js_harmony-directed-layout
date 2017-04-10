@@ -1,4 +1,7 @@
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+    <meta charset="utf-8">
+    <title>Harmony Layout</title>
     <script language="javascript" src="libraries/p5.js"></script>
     <!-- uncomment lines below to include extra p5 libraries -->
     <script language="javascript" src="libraries/quicksettings.js"></script>
@@ -6,6 +9,8 @@
     <script language="javascript" src="libraries/tonal.js"></script>
     <script language="javascript" src="libraries/p5.sound.js"></script>
     <script language="javascript" src="sketch.js"></script>
+    <script language="javascript" src="buildmap.js"></script>
+    <script language="javascript" src="interactions.js"></script>
     <script language="javascript" src="c_node.js"></script>
     <script language="javascript" src="c_spring.js"></script>
     <!-- this line removes any default padding and style. you might only need one of these values set. -->
@@ -17,4 +22,30 @@
     </style>
 </head>
 
-<body> </body>
+<body>
+    <script>
+        // http://stackoverflow.com/questions/29008194/disabling-androids-chrome-pull-down-to-refresh-feature
+        var lastTouchY = 0;
+        var preventPullToRefresh = false;
+        $('body').on('touchstart', function (e) {
+            if (e.originalEvent.touches.length != 1) {
+                return;
+            }
+            lastTouchY = e.originalEvent.touches[0].clientY;
+            preventPullToRefresh = window.pageYOffset == 0;
+        });
+        $('body').on('touchmove', function (e) {
+            var touchY = e.originalEvent.touches[0].clientY;
+            var touchYDelta = touchY - lastTouchY;
+            lastTouchY = touchY;
+            if (preventPullToRefresh) {
+                // To suppress pull-to-refresh it is sufficient to preventDefault the first overscrolling touchmove.
+                preventPullToRefresh = false;
+                if (touchYDelta > 0) {
+                    e.preventDefault();
+                    return;
+                }
+            }
+        });
+    </script>
+</body>
