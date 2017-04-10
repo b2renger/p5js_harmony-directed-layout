@@ -93,12 +93,13 @@
       push();
       colorMode(HSB,360,100,100,100)
       noStroke();
-      fill(this.c);
+      fill(0);
       ellipse(this.location.x, this.location.y, this.diameter / 5, this.diameter / 5);
-      fill(hue(this.c),saturation(this.c), brightness(this.c), 25);
+      fill(hue(this.c),saturation(this.c), brightness(this.c), 45);
       ellipse(this.location.x, this.location.y, this.diameter, this.diameter);
-      fill(this.c);
+      fill(0);
       textSize(15)
-      text(this.labl, this.location.x - this.labl.length * 5, this.location.y - this.diameter / 3 + 10);
+      textAlign(CENTER,BOTTOM)
+      text(this.labl, this.location.x , this.location.y - this.diameter / 2 );
       pop();
   }

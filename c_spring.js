@@ -67,7 +67,8 @@ Spring.prototype.display = function () {
     */
     push();
     noFill();
-    stroke(255);
+    strokeWeight(2);
+    stroke(0);
     line(this.fromNode.location.x, this.fromNode.location.y, this.toNode.location.x, this.toNode.location.y);
     pop();
 }
