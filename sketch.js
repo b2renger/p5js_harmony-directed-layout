@@ -1,21 +1,18 @@
+// prevent refresh on pulling on mobile
+// double fire up on android
+
+
 // gui physics damping stifness radius strength
 // gui sound = note duration, octave // add volume , loop, octave per instrument
 // gui sound button reset voices
-// some kind of sequencer : tap tap ?
-// make a better spatial layout than random position at building
-// imaginer un mode jeu en jouant avec le bouclage des buffers audio // accords et notes séparement // il serait bien de brancher des env pour animer la couleur des noeuds qui jouent
-// ajouter quelques progression harmoniques de morceaux connus avec des presets de soundfont
-
-
-
 
 
 var nodes = []; // hold notes
 var chordnodes = []; // hold chords
 var springs = []; // old everything together
 // soundfont stuff
-var soundBass = "acoustic_grand_piano"
-var soundLead = "acoustic_grand_piano";
+var soundBass = "bright_acoustic_piano"
+var soundLead = "bright_acoustic_piano";
 var bass, lead;
 //  var chordProgression = "C, Dm, Em , F, GM7, Am";
 var chordProgression = "C, Dm, Em ";
@@ -24,12 +21,10 @@ var selectedNode = null;
 var lastSelectedNode = null;
 var gui, sp;
 var loading = false;
-
 var font
 
 function preload() {
     font = loadFont("assets/cafeandbrewery.ttf");
-
     ctx = getAudioContext();
     lead = Soundfont.instrument(ctx, soundLead);
     bass = Soundfont.instrument(ctx, soundBass);
@@ -48,21 +43,21 @@ function setup() {
     textFont(font);
     // a drawer for general settings
     gui = QuickSettings.create(5, 5, 'General parameters')
+
     gui.addTextArea('chord progression', chordProgression, build);
     gui.addBoolean('physics', true)
-    gui.addBoolean('sound', false)
-    gui.addBoolean('move nodes', true)
+    gui.addBoolean('move nodes', false)
+    gui.addBoolean('sound on click', true)
+    gui.addBoolean('sound on over', false)
     gui.setCollapsible(true)
-    // a drawer for sound options
+        // a drawer for sound options
     sp = QuickSettings.create(210, 5, 'Sound Parameters')
     sp.addDropDown("chord instrument", instrumentTable, setBass);
     sp.addDropDown("lead instrument", instrumentTable, setLead);
-
     sp.addButton("clear voices", clearVoices);
     sp.setCollapsible(true);
     // a drawer for physics options
     physics = QuickSettings.create(415, 5, 'Physics Parameters')
-
     // build the network of chords and notes according to the chord progression
     build();
     selectedNode = chordnodes[0];
@@ -111,18 +106,17 @@ function draw() {
                 }
             }
         }
-
     }
 }
 
 function mousePressed() {
-    over_and_play();
-    console.log("mouse");
+    check_over(mouseX, mouseY);
 }
 
 function touchStarted() {
-    over_and_play();
-    console.log("touch");
+    for (var i = 0; i < touches.length; i++) {
+        check_over(touches[i].x, touches[i].y);
+    }
 }
 
 function touchMoved() {
@@ -131,14 +125,11 @@ function touchMoved() {
 
 function mouseMoved() {
     over_and_move();
-     // overing the nodes
-     //   check_over();
+    // overing the nodes
+    check_over_non_redundant(mouseX,mouseY);
 }
 
-function clearVoices(){
-
-}
-
+function clearVoices() {}
 // change audio voice
 function setBass() {
     loading = true;

@@ -9,8 +9,8 @@ function build(params) {
     var noteSeries = []; // we want to keep track of the notes for each chord.
     for (var j = 0; j < chordProgression.length; j++) {
         var c = chordProgression[j].trim();
-        var xpos = random(100, width - 100);
-        var ypos = random(100, height - 100);
+        var xpos = random(width/2-200, width/2+200);
+        var ypos = random(height/2-200, height/2 + 200);
         // add a new node to the chordnodes array
         chordnodes.push(new Node(xpos, ypos, chordnodes.length, c, 75, Tonal.chord(c), color(200, 100, 70)));
         var chordnotes = Tonal.chord(c)
@@ -26,8 +26,8 @@ function build(params) {
         for (var j = 0; j < chordnodes[i].midinotes.length; j++) {
             // if there is no nodes we create the first one with its notes attached
             if (nodes.length == 0) {
-                var xpos = random(100, width - 100);
-                var ypos = random(100, height - 100);
+                var xpos =  chordnodes[i].location.x +  random(-100,  100);
+                var ypos = chordnodes[i].location.x  + random(-100,   100);
                 // new note
                 nodes.push(new Node(xpos, ypos, chordnodes.length + nodes.length, chordnodes[i].midinotes[0], 50, chordnodes[i].midinotes[0], color(noteSeries[chordnodes[i].midinotes[0]] * 60, 80, 100)));
                 // new spring
@@ -54,8 +54,8 @@ function build(params) {
                 springs.push(s);
             }
             else { // if it doesn't we creae a new note node and a spring
-                var xpos = random(100, width - 100);
-                var ypos = random(100, height - 100);
+                var xpos =  chordnodes[i].location.x +  random(-100,  100);
+                var ypos = chordnodes[i].location.x  + random(-100,   100);
                 nodes.push(new Node(xpos, ypos, chordnodes.length + nodes.length, chordnodes[i].midinotes[j], 50, chordnodes[i].midinotes[j], color(noteSeries[chordnodes[i].midinotes[j]] * 60, 80, 100)));
                 var s = new Spring(chordnodes[i], nodes[nodes.length - 1], noteSeries[nodes[index].midinotes[0]] * 75);
                 s.damping = 0.15;
