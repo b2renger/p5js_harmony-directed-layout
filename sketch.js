@@ -1,3 +1,4 @@
+// make responsive
 // prevent refresh on pulling on mobile
 // double fire up on android
 
@@ -47,7 +48,7 @@ function setup() {
 
     gui.addTextArea('chord progression', chordProgression, build);
     gui.addBoolean('physics', true)
-    gui.addBoolean('move nodes', false)
+    gui.addBoolean('move nodes', true)
     gui.addBoolean('sound on click', true)
     if(isTouchDevice()){
         gui.addBoolean('sound on over', false)
