@@ -166,11 +166,14 @@ function leadPlay(note, dur) {
 
 function setBass() {
     var index = sp.getValuesAsJSON(false)["chord instrument"].index
-        // console.log(soundfonts[index]);
-        // bass = soundfonts[index];
-        //    soundBass.loader.decodeAfterLoading(ctx, bass);
-        //  soundBass.loader.startLoad(ctx, soundfonts[index], avalaible_sounds[index]);
-        //				console.log(soundBass.loader.waitLoad())
+     var bassname = soundfonts[index];
+    var basspath = paths[index];
+    soundBass.loader.startLoad(ctx, basspath, bassname);
+    soundBass.loader.waitLoad(function () {
+        console.log('done', this.name);
+    })
+    console.log('change', basspath, bassname);
+
 }
 
 function setLead() {
