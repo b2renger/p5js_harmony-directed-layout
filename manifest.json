@@ -2,10 +2,10 @@
    "name": "Harmony layout",
    "xwalk_app_version": "0.1",
    "start_url": "index.html",
-   "xwalk_package_id": "com.xwalk.simple",
+   "xwalk_package_id": "io.github.b2renger",
    "icons": [
      {
-         "src": "cw-app-icon.png",
+         "src": "cw-app-icon-72.png",
          "sizes": "72x72"
      }
    ]
