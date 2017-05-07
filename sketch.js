@@ -30,9 +30,12 @@ var font
 
 function preload() {
     ctx = getAudioContext();
-    for (var i = 0; i < soundfonts.length; i++) {
-        soundBass.loader.startLoad(ctx, paths[i], soundfonts[i]);
-        soundLead.loader.startLoad(ctx, paths[i], soundfonts[i]);
+    console.log('preload',ctx);
+    for (var i = 0; i < avalaible_sounds.length; i++) {
+        //soundBass.loader.startLoad(ctx, paths[i], soundfonts[i]);
+		soundBass.loader.startLoad(ctx, avalaible_sounds[i].path, avalaible_sounds[i].variable);
+        //soundLead.loader.startLoad(ctx, paths[i], soundfonts[i]);
+		soundLead.loader.startLoad(ctx, avalaible_sounds[i].path, avalaible_sounds[i].variable);
     }
     soundBass.loader.waitLoad(function () {
         console.log('done bass');
@@ -62,12 +65,15 @@ function setup() {
     }
     gui.setCollapsible(true)
         // a drawer for sound options
+
+    var dropDownNames=[];
+	for(var i=0;i<avalaible_sounds.length;i++){dropDownNames.push(avalaible_sounds[i].name);}
     sp = QuickSettings.create(210, 5, 'Sound Parameters')
-    sp.addDropDown("chord instrument", avalaible_sounds, setBass);
+    sp.addDropDown("chord instrument", dropDownNames, setBass);
     sp.addRange("chord octave", 1, 8, 4, 1, setChordOctave)
     sp.addRange("chord duration", 0.1, 8, 1.5, 0.01, setChordDuration)
     sp.addRange("chord volume", 0, 1, 0.2, 0.01, setChordVolume)
-    sp.addDropDown("lead instrument", avalaible_sounds, setLead);
+    sp.addDropDown("lead instrument", dropDownNames, setLead);
     sp.addRange("lead octave", 1, 8, 5, 1, setLeadOctave)
     sp.addRange("lead duration", 0.1, 8, 1.5, 0.01, setLeadDuration)
     sp.addRange("lead volume", 0, 1, 0.5, 0.01, setLeadVolume)
@@ -155,36 +161,42 @@ function mouseMoved() {
 }
 
 function bassPlay(note, dur) {
-    soundBass.queueWaveTable(ctx, ctx.destination, bass, 0, note, dur, chordVolume);
+    console.log('bassPlay',note,dur,bass);
+	if(!(bass)){bass=avalaible_sounds[0];}
+    soundBass.queueWaveTable(ctx, ctx.destination, window[bass.variable], 0, note, dur, chordVolume);
     return false;
+    //soundBass.queueWaveTable(ctx, ctx.destination, bass, 0, note, dur, chordVolume);
+    //return false;
 }
 
 function leadPlay(note, dur) {
-    soundLead.queueWaveTable(ctx, ctx.destination, lead, 0, note, dur, leadVolume);
+    console.log('leadPlay',note,dur,lead);
+	if(!(lead)){lead=avalaible_sounds[0];}
+    soundLead.queueWaveTable(ctx, ctx.destination, window[lead.variable], 0, note, dur, leadVolume);
     return false;
 }
 
 function setBass() {
     var index = sp.getValuesAsJSON(false)["chord instrument"].index
-     var bassname = soundfonts[index];
-    var basspath = paths[index];
-    soundBass.loader.startLoad(ctx, basspath, bassname);
+
+
+    soundBass.loader.startLoad(ctx, avalaible_sounds[index].path, avalaible_sounds[index].variable);
     soundBass.loader.waitLoad(function () {
-        console.log('done', this.name);
+		bass=avalaible_sounds[index];
+		console.log('bass',bass);
+        //console.log('done', this.name);
     })
-    console.log('change', basspath, bassname);
 
 }
 
 function setLead() {
     var index = sp.getValuesAsJSON(false)["lead instrument"].index
-    var leadname = soundfonts[index];
-    var leadpath = paths[index];
-    soundLead.loader.startLoad(ctx, leadpath, leadname);
+    soundLead.loader.startLoad(ctx, avalaible_sounds[index].path, avalaible_sounds[index].variable);
     soundLead.loader.waitLoad(function () {
-        console.log('done', this.name);
+        //console.log('done', this.name);
+		lead=avalaible_sounds[index];
+		console.log('lead',lead);
     })
-    console.log('change', leadpath, leadname);
 }
 // gui callbacks
 function setChordOctave() {
