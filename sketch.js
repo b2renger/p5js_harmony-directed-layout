@@ -10,13 +10,15 @@ var nodesSize = 50;
 var chordnodesSize = 75;
 var ctx;
 // soundfont stuff
-var chordDuration = 0.5;
-var leadDuration = 0.5;
 var soundBass = new WebAudioFontPlayer();
 var soundLead = new WebAudioFontPlayer();
-var bass, lead;
+var bass, lead
 var chordOctave = 4;
 var leadOctave = 5;
+var chordDuration = 1.5;
+var leadDuration = .5;
+var chordVolume = 0.2;
+var leadVolume = 0.5;
 //  var chordProgression = "C, Dm, Em , F, GM7, Am";
 var chordProgression = "C13, Dm, Em9 , Fm9b5";
 // "overing" system
@@ -26,13 +28,18 @@ var gui, sp, physics
 var loading = false;
 var font
 
-
-
 function preload() {
-    //font = loadFont("assets/cafeandbrewery.ttf");
     ctx = getAudioContext();
-    soundBass.loader.decodeAfterLoading(ctx, '_tone_0000_Aspirin_sf2_file');
-    soundLead.loader.decodeAfterLoading(ctx, '_tone_0000_Aspirin_sf2_file');
+    for (var i = 0; i < soundfonts.length; i++) {
+        soundBass.loader.startLoad(ctx, paths[i], soundfonts[i]);
+        soundLead.loader.startLoad(ctx, paths[i], soundfonts[i]);
+    }
+    soundBass.loader.waitLoad(function () {
+        console.log('done bass');
+    })
+    soundLead.loader.waitLoad(function () {
+        console.log('done lead');
+    })
 }
 
 function setup() {
@@ -56,12 +63,14 @@ function setup() {
     gui.setCollapsible(true)
         // a drawer for sound options
     sp = QuickSettings.create(210, 5, 'Sound Parameters')
-        //sp.addDropDown("chord instrument", instrumentTable, setBass);
+    sp.addDropDown("chord instrument", avalaible_sounds, setBass);
     sp.addRange("chord octave", 1, 8, 4, 1, setChordOctave)
-    sp.addRange("chord duration", 0.1, 8, 0.5, 0.01, setChordDuration)
-        //sp.addDropDown("lead instrument", instrumentTable, setLead);
+    sp.addRange("chord duration", 0.1, 8, 1.5, 0.01, setChordDuration)
+    sp.addRange("chord volume", 0, 1, 0.2, 0.01, setChordVolume)
+    sp.addDropDown("lead instrument", avalaible_sounds, setLead);
     sp.addRange("lead octave", 1, 8, 5, 1, setLeadOctave)
-    sp.addRange("lead duration", 0.1, 8, 0.5, 0.01, setLeadDuration)
+    sp.addRange("lead duration", 0.1, 8, 1.5, 0.01, setLeadDuration)
+    sp.addRange("lead volume", 0, 1, 0.5, 0.01, setLeadVolume)
     sp.setCollapsible(true);
     sp.collapse(true);
     // a drawer for physics options
@@ -83,6 +92,7 @@ function setup() {
 
 function draw() {
     background(255);
+    //console.log(soundLead.loader.zone.buffer)
     if (loading) {
         textSize(48);
         textAlign(CENTER, CENTER);
@@ -145,18 +155,35 @@ function mouseMoved() {
 }
 
 function bassPlay(note, dur) {
-    soundBass.queueWaveTable(ctx, ctx.destination, _tone_0000_Aspirin_sf2_file, 0, note, dur);
+    soundBass.queueWaveTable(ctx, ctx.destination, bass, 0, note, dur, chordVolume);
     return false;
 }
 
 function leadPlay(note, dur) {
-    soundLead.queueWaveTable(ctx, ctx.destination, _tone_0000_Aspirin_sf2_file, 0, note, dur);
+    soundLead.queueWaveTable(ctx, ctx.destination, lead, 0, note, dur, leadVolume);
     return false;
 }
 
+function setBass() {
+    var index = sp.getValuesAsJSON(false)["chord instrument"].index
+        // console.log(soundfonts[index]);
+        // bass = soundfonts[index];
+        //    soundBass.loader.decodeAfterLoading(ctx, bass);
+        //  soundBass.loader.startLoad(ctx, soundfonts[index], avalaible_sounds[index]);
+        //				console.log(soundBass.loader.waitLoad())
+}
+
+function setLead() {
+    var index = sp.getValuesAsJSON(false)["lead instrument"].index
+    var leadname = soundfonts[index];
+    var leadpath = paths[index];
+    soundLead.loader.startLoad(ctx, leadpath, leadname);
+    soundLead.loader.waitLoad(function () {
+        console.log('done', this.name);
+    })
+    console.log('change', leadpath, leadname);
+}
 // gui callbacks
-
-
 function setChordOctave() {
     if (sp.getValuesAsJSON(false)["chord octave"] != NaN) {
         chordOctave = sp.getValuesAsJSON(false)["chord octave"];
@@ -167,6 +194,10 @@ function setChordDuration() {
     chordDuration = sp.getValuesAsJSON(false)["chord duration"];
 }
 
+function setChordVolume() {
+    chordVolume = sp.getValuesAsJSON(false)["chord volume"];
+}
+
 function setLeadOctave() {
     if (sp.getValuesAsJSON(false)["lead octave"] != NaN) {
         leadOctave = sp.getValuesAsJSON(false)["lead octave"];
@@ -175,6 +206,10 @@ function setLeadOctave() {
 
 function setLeadDuration() {
     leadDuration = sp.getValuesAsJSON(false)["lead duration"];
+}
+
+function setLeadVolume() {
+    leadVolume = sp.getValuesAsJSON(false)["lead volume"];
 }
 
 function setNoteSize() {
