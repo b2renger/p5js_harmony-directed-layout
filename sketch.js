@@ -1,8 +1,12 @@
 // fix nexus 5 resolution
 // look at device orientation
-// find a way to ship soundfont to avoid loading time
 // prevent refresh on pulling on mobile
-// double fire up on chrome android
+// prevent double fire up on chrome android
+// test loading time on android
+// add option to display midi notes
+// add audio delay/feedback with editable loop time and volume and maybe other audio effects with tuna
+// add audio record button
+
 var nodes = []; // hold notes
 var chordnodes = []; // hold chords
 var springs = []; // old everything together
@@ -25,23 +29,24 @@ var chordProgression = "C13, Dm, Em9 , Fm9b5";
 var selectedNode = null;
 var lastSelectedNode = null;
 var gui, sp, physics
-var loading = false;
-var font
+var loading = true;
+var font;
 
 function preload() {
     ctx = getAudioContext();
     console.log('preload',ctx);
-    for (var i = 0; i < avalaible_sounds.length; i++) {
-        //soundBass.loader.startLoad(ctx, paths[i], soundfonts[i]);
+    for (var i = 0; i < 28; i++) {
+        //console.log(i, avalaible_sounds.length, avalaible_sounds[i].name)
 		soundBass.loader.startLoad(ctx, avalaible_sounds[i].path, avalaible_sounds[i].variable);
-        //soundLead.loader.startLoad(ctx, paths[i], soundfonts[i]);
 		soundLead.loader.startLoad(ctx, avalaible_sounds[i].path, avalaible_sounds[i].variable);
     }
     soundBass.loader.waitLoad(function () {
-        console.log('done bass');
+        //console.log('done bass');
+        loading = false;
     })
     soundLead.loader.waitLoad(function () {
-        console.log('done lead');
+       // console.log('done lead');
+        loading = false;
     })
 }
 
@@ -70,13 +75,13 @@ function setup() {
 	for(var i=0;i<avalaible_sounds.length;i++){dropDownNames.push(avalaible_sounds[i].name);}
     sp = QuickSettings.create(210, 5, 'Sound Parameters')
     sp.addDropDown("chord instrument", dropDownNames, setBass);
-    sp.addRange("chord octave", 1, 8, 4, 1, setChordOctave)
-    sp.addRange("chord duration", 0.1, 8, 1.5, 0.01, setChordDuration)
-    sp.addRange("chord volume", 0, 1, 0.2, 0.01, setChordVolume)
+    sp.addRange("chord octave", 1, 8, 3, 1, setChordOctave)
+    sp.addRange("chord duration", 0.1, 8, 1.2, 0.01, setChordDuration)
+    sp.addRange("chord volume", 0, 0.25, 0.1, 0.01, setChordVolume)
     sp.addDropDown("lead instrument", dropDownNames, setLead);
-    sp.addRange("lead octave", 1, 8, 5, 1, setLeadOctave)
-    sp.addRange("lead duration", 0.1, 8, 1.5, 0.01, setLeadDuration)
-    sp.addRange("lead volume", 0, 1, 0.5, 0.01, setLeadVolume)
+    sp.addRange("lead octave", 1, 8, 3, 1, setLeadOctave)
+    sp.addRange("lead duration", 0.1, 8, 1, 0.01, setLeadDuration)
+    sp.addRange("lead volume", 0, 0.5, 0.25, 0.01, setLeadVolume)
     sp.setCollapsible(true);
     sp.collapse(true);
     // a drawer for physics options
@@ -94,6 +99,11 @@ function setup() {
     lastSelectedNode = chordnodes[0];
     // print a list of all possible chords to be entered
     console.log(Tonal.chord.names())
+
+    sp.setValuesFromJSON({"lead instrument": 6})
+    soundLead.loader.startLoad(ctx, avalaible_sounds[6].path, avalaible_sounds[6].variable);
+    sp.setValuesFromJSON({"chord instrument": 6})
+    soundBass.loader.startLoad(ctx, avalaible_sounds[6].path, avalaible_sounds[6].variable);
 }
 
 function draw() {
@@ -161,7 +171,7 @@ function mouseMoved() {
 }
 
 function bassPlay(note, dur) {
-    console.log('bassPlay',note,dur,bass);
+    //console.log('bassPlay',note,dur,bass);
 	if(!(bass)){bass=avalaible_sounds[0];}
     soundBass.queueWaveTable(ctx, ctx.destination, window[bass.variable], 0, note, dur, chordVolume);
     return false;
@@ -170,32 +180,38 @@ function bassPlay(note, dur) {
 }
 
 function leadPlay(note, dur) {
-    console.log('leadPlay',note,dur,lead);
+    //console.log('leadPlay',note,dur,lead);
 	if(!(lead)){lead=avalaible_sounds[0];}
     soundLead.queueWaveTable(ctx, ctx.destination, window[lead.variable], 0, note, dur, leadVolume);
     return false;
 }
 
 function setBass() {
+    loading = true;
+    //console.log(loading)
     var index = sp.getValuesAsJSON(false)["chord instrument"].index
 
 
     soundBass.loader.startLoad(ctx, avalaible_sounds[index].path, avalaible_sounds[index].variable);
     soundBass.loader.waitLoad(function () {
 		bass=avalaible_sounds[index];
-		console.log('bass',bass);
-        //console.log('done', this.name);
+		//console.log('bass',bass);
+        loading=false
+        //console.log(loading)
     })
 
 }
 
 function setLead() {
+    loading = true;
+    //console.log(loading)
     var index = sp.getValuesAsJSON(false)["lead instrument"].index
     soundLead.loader.startLoad(ctx, avalaible_sounds[index].path, avalaible_sounds[index].variable);
     soundLead.loader.waitLoad(function () {
-        //console.log('done', this.name);
 		lead=avalaible_sounds[index];
-		console.log('lead',lead);
+		//console.log('lead',lead);
+        loading=false
+        //console.log(loading)
     })
 }
 // gui callbacks
