@@ -1,34 +1,79 @@
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     <meta charset="utf-8">
+
     <title>Harmony Layout</title>
-    <script language="javascript" src="libraries/p5-0.57.js"></script>
-    <!-- uncomment lines below to include extra p5 libraries -->
+
+    <script language="javascript" src="libraries/p5.js"></script>
     <script language="javascript" src="libraries/quicksettings.js"></script>
-
-    <!--<script language="javascript" src="libraries/soundfont-player.min.js"></script> -->
+    <script language="javascript" src="libraries/tuna.js"></script>
     <script language="javascript" src="libraries/WebAudioFontPlayer.js"></script>
-
-
     <script language="javascript" src="libraries/tonal.js"></script>
     <script language="javascript" src="libraries/p5.sound.js"></script>
+
     <script language="javascript" src="buildmap.js"></script>
     <script language="javascript" src="interactions.js"></script>
     <script language="javascript" src="soundtable.js"></script>
     <script language="javascript" src="c_node.js"></script>
     <script language="javascript" src="c_spring.js"></script>
     <script language="javascript" src="sketch.js"></script>
-    <!-- this line removes any default padding and style. you might only need one of these values set. -->
+
     <style>
         body {
             padding: 0;
             margin: 0;
+            -webkit-touch-callout: none;
         }
     </style>
-
 </head>
 
 <body>
-
-
+    <script>
+        // prevent pull-to-refresh on mobile browser
+        // https://jsbin.com/zojajozasu/edit?html,output
+        window.addEventListener('load', function () {
+            var preventPullToRefreshCheckbox = true
+            var preventOverscrollGlowCheckbox = true
+            var preventScrollCheckbox = true
+            var maybePreventPullToRefresh = false;
+            var lastTouchY = 0;
+            var touchstartHandler = function (e) {
+                if (e.touches.length != 1) return;
+                lastTouchY = e.touches[0].clientY;
+                // Pull-to-refresh will only trigger if the scroll begins when the
+                // document's Y offset is zero.
+                maybePreventPullToRefresh = preventPullToRefreshCheckbox && window.pageYOffset == 0;
+            }
+            var touchmoveHandler = function (e) {
+                var touchY = e.touches[0].clientY;
+                var touchYDelta = touchY - lastTouchY;
+                lastTouchY = touchY;
+                if (maybePreventPullToRefresh) {
+                    // To suppress pull-to-refresh it is sufficient to preventDefault the
+                    // first overscrolling touchmove.
+                    maybePreventPullToRefresh = false;
+                    if (touchYDelta > 0) {
+                        e.preventDefault();
+                        return;
+                    }
+                }
+                if (preventScrollCheckbox) {
+                    e.preventDefault();
+                    return;
+                }
+                if (preventOverscrollGlowCheckbox) {
+                    if (window.pageYOffset == 0 && touchYDelta > 0) {
+                        e.preventDefault();
+                        return;
+                    }
+                }
+            }
+            document.addEventListener('touchstart', touchstartHandler, {
+                passive: false
+            });
+            document.addEventListener('touchmove', touchmoveHandler, {
+                passive: false
+            });
+        });
+    </script>
 </body>

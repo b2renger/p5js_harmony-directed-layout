@@ -43,6 +43,7 @@
       this.diameter = diam; // to draw
       this.labl = label;
       this.midinotes = notes;
+      this.justPlayed = false;
   }
   Node.prototype.attract = function (theNode) {
       var d = dist(this.location.x, this.location.y, theNode.location.x, theNode.location.y);

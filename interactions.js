@@ -49,31 +49,48 @@ function check_over(mx, my) {
         var checkNode = nodes[i];
         var d = dist(mx, my, checkNode.location.x, checkNode.location.y);
         if (d < nodesSize / 2) {
-            selectedNode = checkNode;
+            // selectedNode = checkNode; // this is the pb
             if (gui.getValuesAsJSON(false)["sound on click"]) {
                 // we actually call the instrument right here
-                var noteToPlay = selectedNode.midinotes;
-                leadPlay(Tonal.midi.toMidi(noteToPlay + leadOctave), leadDuration);
+                if (!nodes[i].justPlayed) {
+                    var noteToPlay = nodes[i].midinotes;
+                    leadPlay(Tonal.midi.toMidi(noteToPlay + leadOctave), leadDuration);
+                    nodes[i].justPlayed = true;
+                    var n = nodes[i];
+                    setTimeout(function (n) {
+                            n.justPlayed = false;
+
+                    }.bind(this, n), noteTimeout);
             }
         }
     }
-    // check the chord nodes
-    for (var i = 0; i < chordnodes.length; i++) {
-        var checkNode = chordnodes[i];
-        var d = dist(mx, my, checkNode.location.x, checkNode.location.y);
-        if (d < chordnodesSize / 2) {
-            selectedNode = checkNode;
-            if (gui.getValuesAsJSON(false)["sound on click"]) {
-                var noteToPlay = selectedNode.midinotes;
+}
+// check the chord nodes
+for (var i = 0; i < chordnodes.length; i++) {
+    var checkNode = chordnodes[i];
+    var d = dist(mx, my, checkNode.location.x, checkNode.location.y);
+    if (d < chordnodesSize / 2) {
+        // selectedNode = checkNode; //this is the pb
+        if (gui.getValuesAsJSON(false)["sound on click"]) {
+            if (!chordnodes[i].justPlayed) {
+                var noteToPlay = chordnodes[i].midinotes;
                 for (var j = 0; j < noteToPlay.length; j++) {
                     var note = noteToPlay[j] + chordOctave;
-                    bassPlay(Tonal.midi.toMidi(note), chordDuration)
+                    var time = j * noteSpacing;
+                    bassPlay(Tonal.midi.toMidi(note), chordDuration, time)
+                    chordnodes[i].justPlayed = true;
+                    var n = chordnodes[i];
+                    setTimeout(function (n) {
+                            n.justPlayed = false;
+
+                    }.bind(this, n), noteTimeout);
                 }
             }
         }
     }
 }
-
+}
+/*
 function check_over_non_redundant(mx, my) {
     if (gui.getValuesAsJSON(false)["sound on over"]) {
         // first check the note nodes
@@ -101,10 +118,11 @@ function check_over_non_redundant(mx, my) {
                     var noteToPlay = selectedNode.midinotes;
                     for (var j = 0; j < noteToPlay.length; j++) {
                         var note = noteToPlay[j] + chordOctave;
-                        bassPlay(Tonal.midi.toMidi(note), chordDuration)
+                        var time = j *noteSpacing;
+                        bassPlay(Tonal.midi.toMidi(note), chordDuration,time)
                     }
                 }
             }
         }
     }
-}
+}*/
